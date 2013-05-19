@@ -8,6 +8,7 @@ public final class Tables {
         public static final String COL_ACTIVITY_NAME = "activity_name";
         public static final String COL_SECRET_CODE = "secret_code";
         public static final String COL_DATE_ADDED = "date_added";
+        public static final String COL_HIDDEN = "hidden";
     }
 
 }

@@ -28,7 +28,7 @@ import static android.widget.AdapterView.OnItemClickListener;
 
 public class SecretCodesFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private ListView listView;
-    private SimpleCursorAdapter listAdapter;
+    private SimpleCursorAdapter simpleAdapter;
     private ArrayList<SecretCode> secretCodes;
 
     private OnItemClickListener onItemClickListener = new OnItemClickListener() {
@@ -43,7 +43,7 @@ public class SecretCodesFragment extends Fragment implements LoaderManager.Loade
         super.onCreate(savedInstanceState);
         String[] uiBindFrom = new String[]{Tables.SecretCodes.COL_ACTIVITY_NAME, Tables.SecretCodes.COL_SECRET_CODE};
         int[] uiBindTo = new int[]{android.R.id.text1, android.R.id.text2};
-        listAdapter = new SimpleCursorAdapter(
+        simpleAdapter = new SimpleCursorAdapter(
                 getActivity(), android.R.layout.simple_list_item_2, null,
                 uiBindFrom, uiBindTo, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
     }
@@ -53,7 +53,7 @@ public class SecretCodesFragment extends Fragment implements LoaderManager.Loade
         super.onCreateView(inflater, container, savedInstanceState);
         View v = inflater.inflate(R.layout.secret_codes_fragment_layout, container, false);
         listView = (ListView) v.findViewById(R.id.secretCodesList);
-        listView.setAdapter(listAdapter);
+        listView.setAdapter(simpleAdapter);
         listView.setOnItemClickListener(onItemClickListener);
         initLoader();
         return v;
@@ -74,7 +74,7 @@ public class SecretCodesFragment extends Fragment implements LoaderManager.Loade
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        listAdapter.swapCursor(data);
+        simpleAdapter.swapCursor(data);
         secretCodes = populateListWith(data);
     }
 
@@ -85,7 +85,7 @@ public class SecretCodesFragment extends Fragment implements LoaderManager.Loade
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        listAdapter.swapCursor(null);
+        simpleAdapter.swapCursor(null);
         secretCodes.clear();
     }
 
