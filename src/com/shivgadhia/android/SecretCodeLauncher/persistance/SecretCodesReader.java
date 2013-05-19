@@ -1,6 +1,10 @@
 package com.shivgadhia.android.SecretCodeLauncher.persistance;
 
+import android.content.Context;
+import android.content.CursorLoader;
+import android.content.Loader;
 import android.database.Cursor;
+import android.net.Uri;
 import android.util.Log;
 import com.shivgadhia.android.SecretCodeLauncher.models.SecretCode;
 
@@ -44,4 +48,9 @@ public class SecretCodesReader {
         String secretCode = cursor.getString(cursor.getColumnIndexOrThrow(Tables.SecretCodes.COL_SECRET_CODE));
         return new SecretCode(activityName, secretCode);
     }
+
+    public Loader<Cursor> getCursorLoader(Context context) {
+        return new CursorLoader(context,Uri.parse(SecretCodesProvider.AUTHORITY + Tables.TBL_SECRET_CODES),null,null,null,null);
+    }
+
 }

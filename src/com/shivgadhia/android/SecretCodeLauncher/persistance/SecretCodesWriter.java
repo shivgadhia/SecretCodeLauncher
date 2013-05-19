@@ -15,7 +15,7 @@ public class SecretCodesWriter {
         values.put(Tables.SecretCodes.COL_ACTIVITY_NAME, activityName);
         values.put(Tables.SecretCodes.COL_SECRET_CODE, secretCode);
 
-        databaseWriter.saveDataToPostsTable(values);
+        databaseWriter.saveDataToTable(Tables.TBL_SECRET_CODES, values);
     }
 
 }

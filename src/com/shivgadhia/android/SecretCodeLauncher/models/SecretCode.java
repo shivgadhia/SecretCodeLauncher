@@ -16,4 +16,9 @@ public class SecretCode {
         this.activityName = activityName;
         this.secretCode = secretCode;
     }
+
+    @Override
+    public String toString() {
+        return activityName + " ("+secretCode+")";
+    }
 }

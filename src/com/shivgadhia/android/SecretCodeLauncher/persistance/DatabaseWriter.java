@@ -13,7 +13,7 @@ public class DatabaseWriter {
         this.contentResolver = contentResolver;
     }
 
-    private void saveDataToTable(String table, ContentValues values) {
+    public void saveDataToTable(String table, ContentValues values) {
         Uri uri = createUri(table);
         contentResolver.insert(uri, values);
     }
