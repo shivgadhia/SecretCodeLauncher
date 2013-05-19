@@ -50,7 +50,15 @@ public class SecretCodesReader {
     }
 
     public Loader<Cursor> getCursorLoader(Context context) {
-        return new CursorLoader(context,Uri.parse(SecretCodesProvider.AUTHORITY + Tables.TBL_SECRET_CODES),null,null,null,null);
+        return new CursorLoader(context,Uri.parse(SecretCodesProvider.AUTHORITY + Tables.TBL_SECRET_CODES),null,getSelection(),getSelectionArgs(),null);
+    }
+
+    private String[] getSelectionArgs() {
+        return new String[]{"1"};
+    }
+
+    private String getSelection() {
+        return Tables.SecretCodes.COL_HIDDEN +"!=?";
     }
 
 }

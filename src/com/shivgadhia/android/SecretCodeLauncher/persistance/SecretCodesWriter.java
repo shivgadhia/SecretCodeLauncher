@@ -15,7 +15,6 @@ public class SecretCodesWriter {
         ContentValues values = new ContentValues();
         values.put(Tables.SecretCodes.COL_ACTIVITY_NAME, activityName);
         values.put(Tables.SecretCodes.COL_SECRET_CODE, secretCode);
-
         databaseWriter.saveDataToTable(Tables.TBL_SECRET_CODES, values);
     }
 
