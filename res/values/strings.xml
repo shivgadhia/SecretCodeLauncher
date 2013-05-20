@@ -3,4 +3,5 @@
     <string name="app_name">SecretCodesLauncher</string>
     <string name="add">Add</string>
     <string name="cancel">Cancel</string>
+    <string name="undobar_message">Undo</string>
 </resources>

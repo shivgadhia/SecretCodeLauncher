@@ -26,4 +26,9 @@ public class DatabaseWriter {
         Uri uri = createUri(tableName);
         contentResolver.delete(uri, where, selectionArgs);
     }
+
+    public void update(String tableName, ContentValues values, String where, String[] selectionArgs) {
+        Uri uri = createUri(tableName);
+        contentResolver.update(uri, values, where, selectionArgs);
+    }
 }

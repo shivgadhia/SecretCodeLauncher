@@ -7,23 +7,29 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.*;
 import android.widget.*;
+import com.example.android.undobar.UndoBarController;
 import com.shivgadhia.android.SecretCodeLauncher.R;
 import com.shivgadhia.android.SecretCodeLauncher.loaders.SecretCodesLoader;
 import com.shivgadhia.android.SecretCodeLauncher.models.SecretCode;
 import com.shivgadhia.android.SecretCodeLauncher.persistance.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import static android.widget.AdapterView.OnItemClickListener;
 
-public class SecretCodesFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class SecretCodesFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,UndoBarController.UndoListener {
+    private static final String DELETED_IDS = "deletedIds";
     private ListView listView;
     private SimpleCursorAdapter simpleAdapter;
     private ArrayList<SecretCode> secretCodes;
+    private UndoBarController undoBarController;
+
     private AbsListView.MultiChoiceModeListener multiChoiceModeListener = new AbsListView.MultiChoiceModeListener() {
         @Override
         public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
@@ -62,12 +68,22 @@ public class SecretCodesFragment extends Fragment implements LoaderManager.Loade
     private void deleteSelectedItems() {
         SparseBooleanArray checkedItemPositions = listView.getCheckedItemPositions();
         boolean checked;
+        ArrayList<Integer> deletedIds = new ArrayList<Integer>();
+        SecretCodesWriter writer = new SecretCodesWriter(new DatabaseWriter(getActivity().getContentResolver()));
         for(int i=0; i < secretCodes.size(); i++){
             checked = checkedItemPositions.get(i);
             if(checked){
-                new SecretCodesWriter(new DatabaseWriter(getActivity().getContentResolver())).setToDelete(secretCodes.get(i));
+                writer.setToDelete(secretCodes.get(i));
+                deletedIds.add(secretCodes.get(i).getId());
             }
         }
+
+        Bundle bundle = new Bundle();
+        bundle.putIntegerArrayList(DELETED_IDS, deletedIds);
+        undoBarController.showUndoBar(
+                false,
+                getString(R.string.undobar_message),
+                bundle);
 
     }
 
@@ -87,12 +103,14 @@ public class SecretCodesFragment extends Fragment implements LoaderManager.Loade
         simpleAdapter = new SimpleCursorAdapter(
                 getActivity(),R.layout.simple_checkable_list_item_2, null,
                 uiBindFrom, uiBindTo, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         View v = inflater.inflate(R.layout.secret_codes_fragment_layout, container, false);
+        undoBarController = new UndoBarController(v.findViewById(R.id.undobar), this);
         listView = (ListView) v.findViewById(R.id.secretCodesList);
         listView.setAdapter(simpleAdapter);
         listView.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
@@ -137,7 +155,7 @@ public class SecretCodesFragment extends Fragment implements LoaderManager.Loade
         ArrayList<SecretCode> data = new ArrayList<SecretCode>();
         if (cursor.moveToFirst()) {
             do {
-                SecretCode SecretCode = getPost(cursor);
+                SecretCode SecretCode = getSecretCode(cursor);
                 data.add(SecretCode);
             } while (cursor.moveToNext());
         } else {
@@ -146,15 +164,22 @@ public class SecretCodesFragment extends Fragment implements LoaderManager.Loade
         return data;
     }
 
-    private SecretCode getPost(Cursor cursor) {
+    private SecretCode getSecretCode(Cursor cursor) {
         String activityName = cursor.getString(cursor.getColumnIndexOrThrow(Tables.SecretCodes.COL_ACTIVITY_NAME));
         String secretCode = cursor.getString(cursor.getColumnIndexOrThrow(Tables.SecretCodes.COL_SECRET_CODE));
-        return new SecretCode(activityName, secretCode);
+        int id = cursor.getInt(cursor.getColumnIndexOrThrow(Tables.SecretCodes.COL_ID));
+        return new SecretCode(id, activityName, secretCode);
     }
 
     @Override
     public void onDestroy() {
         new SecretCodesWriter(new DatabaseWriter(getActivity().getContentResolver())).prune();
         super.onDestroy();
+    }
+
+    @Override
+    public void onUndo(Parcelable token) {
+        ArrayList<Integer> deletedIds = ((Bundle) token).getIntegerArrayList(DELETED_IDS);
+        new SecretCodesWriter(new DatabaseWriter(getActivity().getContentResolver())).unDelete(deletedIds);
     }
 }

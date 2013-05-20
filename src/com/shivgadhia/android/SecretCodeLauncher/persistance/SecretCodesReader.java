@@ -46,7 +46,8 @@ public class SecretCodesReader {
     private SecretCode getPost(Cursor cursor) {
         String activityName = cursor.getString(cursor.getColumnIndexOrThrow(Tables.SecretCodes.COL_ACTIVITY_NAME));
         String secretCode = cursor.getString(cursor.getColumnIndexOrThrow(Tables.SecretCodes.COL_SECRET_CODE));
-        return new SecretCode(activityName, secretCode);
+        int id = cursor.getInt(cursor.getColumnIndexOrThrow(Tables.SecretCodes.COL_ID));
+        return new SecretCode(id, activityName, secretCode);
     }
 
     public Loader<Cursor> getCursorLoader(Context context) {
