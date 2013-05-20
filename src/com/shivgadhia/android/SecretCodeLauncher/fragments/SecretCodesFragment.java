@@ -8,19 +8,13 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.CursorAdapter;
-import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
+import android.util.SparseBooleanArray;
+import android.view.*;
+import android.widget.*;
 import com.shivgadhia.android.SecretCodeLauncher.R;
 import com.shivgadhia.android.SecretCodeLauncher.loaders.SecretCodesLoader;
 import com.shivgadhia.android.SecretCodeLauncher.models.SecretCode;
-import com.shivgadhia.android.SecretCodeLauncher.persistance.DatabaseReader;
-import com.shivgadhia.android.SecretCodeLauncher.persistance.SecretCodesReader;
-import com.shivgadhia.android.SecretCodeLauncher.persistance.Tables;
+import com.shivgadhia.android.SecretCodeLauncher.persistance.*;
 
 import java.util.ArrayList;
 
@@ -30,6 +24,54 @@ public class SecretCodesFragment extends Fragment implements LoaderManager.Loade
     private ListView listView;
     private SimpleCursorAdapter simpleAdapter;
     private ArrayList<SecretCode> secretCodes;
+    private AbsListView.MultiChoiceModeListener multiChoiceModeListener = new AbsListView.MultiChoiceModeListener() {
+        @Override
+        public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+        }
+
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            MenuInflater inflater = mode.getMenuInflater();
+            inflater.inflate(R.menu.context_menu, menu);
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.cab_delete:
+                    deleteSelectedItems();
+                    mode.finish();
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+        }
+    };
+
+
+    private void deleteSelectedItems() {
+        Toast.makeText(getActivity(), listView.getCheckedItemCount() + " ", Toast.LENGTH_SHORT).show();
+
+        SparseBooleanArray checkedItemPositions = listView.getCheckedItemPositions();
+        boolean checked;
+        for(int i=0; i < secretCodes.size(); i++){
+            checked = checkedItemPositions.get(i);
+            if(checked){
+                new SecretCodesWriter(new DatabaseWriter(getActivity().getContentResolver())).setToDelete(secretCodes.get(i));
+            }
+        }
+
+    }
 
     private OnItemClickListener onItemClickListener = new OnItemClickListener() {
         @Override
@@ -38,13 +80,14 @@ public class SecretCodesFragment extends Fragment implements LoaderManager.Loade
         }
     };
 
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         String[] uiBindFrom = new String[]{Tables.SecretCodes.COL_ACTIVITY_NAME, Tables.SecretCodes.COL_SECRET_CODE};
         int[] uiBindTo = new int[]{android.R.id.text1, android.R.id.text2};
         simpleAdapter = new SimpleCursorAdapter(
-                getActivity(), android.R.layout.simple_list_item_2, null,
+                getActivity(),R.layout.simple_checkable_list_item_2, null,
                 uiBindFrom, uiBindTo, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
     }
 
@@ -54,6 +97,8 @@ public class SecretCodesFragment extends Fragment implements LoaderManager.Loade
         View v = inflater.inflate(R.layout.secret_codes_fragment_layout, container, false);
         listView = (ListView) v.findViewById(R.id.secretCodesList);
         listView.setAdapter(simpleAdapter);
+        listView.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
+        listView.setMultiChoiceModeListener(multiChoiceModeListener);
         listView.setOnItemClickListener(onItemClickListener);
         initLoader();
         return v;
@@ -107,5 +152,11 @@ public class SecretCodesFragment extends Fragment implements LoaderManager.Loade
         String activityName = cursor.getString(cursor.getColumnIndexOrThrow(Tables.SecretCodes.COL_ACTIVITY_NAME));
         String secretCode = cursor.getString(cursor.getColumnIndexOrThrow(Tables.SecretCodes.COL_SECRET_CODE));
         return new SecretCode(activityName, secretCode);
+    }
+
+    @Override
+    public void onDestroy() {
+        new SecretCodesWriter(new DatabaseWriter(getActivity().getContentResolver())).prune();
+        super.onDestroy();
     }
 }

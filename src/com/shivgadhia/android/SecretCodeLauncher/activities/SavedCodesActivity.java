@@ -5,6 +5,7 @@ import android.app.DialogFragment;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -12,8 +13,13 @@ import android.view.View;
 import android.widget.Button;
 import com.shivgadhia.android.SecretCodeLauncher.R;
 import com.shivgadhia.android.SecretCodeLauncher.fragments.AddCodeDialogFragment;
+import com.shivgadhia.android.SecretCodeLauncher.models.SecretCode;
+import com.shivgadhia.android.SecretCodeLauncher.persistance.DatabaseReader;
 import com.shivgadhia.android.SecretCodeLauncher.persistance.DatabaseWriter;
+import com.shivgadhia.android.SecretCodeLauncher.persistance.SecretCodesReader;
 import com.shivgadhia.android.SecretCodeLauncher.persistance.SecretCodesWriter;
+
+import java.util.ArrayList;
 
 public class SavedCodesActivity extends Activity
 {
@@ -22,9 +28,6 @@ public class SavedCodesActivity extends Activity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-
-        SecretCodesWriter writer = new SecretCodesWriter(new DatabaseWriter(getContentResolver()));
-        writer.saveSecretCode("test1", "4636");
     }
 
     @Override

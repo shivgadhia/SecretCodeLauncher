@@ -21,4 +21,9 @@ public class DatabaseWriter {
     private Uri createUri(String tableName) {
         return Uri.parse(SecretCodesProvider.AUTHORITY + tableName);
     }
+
+    public void delete(String tableName, String where, String[] selectionArgs) {
+        Uri uri = createUri(tableName);
+        contentResolver.delete(uri, where, selectionArgs);
+    }
 }

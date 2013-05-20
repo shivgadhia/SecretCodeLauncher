@@ -28,4 +28,7 @@ public class SecretCodesWriter {
 
     }
 
+    public void prune() {
+        databaseWriter.delete(Tables.TBL_SECRET_CODES,Tables.SecretCodes.COL_HIDDEN+" =?", new String[]{"1"});
+    }
 }
