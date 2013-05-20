@@ -60,8 +60,6 @@ public class SecretCodesFragment extends Fragment implements LoaderManager.Loade
 
 
     private void deleteSelectedItems() {
-        Toast.makeText(getActivity(), listView.getCheckedItemCount() + " ", Toast.LENGTH_SHORT).show();
-
         SparseBooleanArray checkedItemPositions = listView.getCheckedItemPositions();
         boolean checked;
         for(int i=0; i < secretCodes.size(); i++){
