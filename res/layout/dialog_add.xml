@@ -16,7 +16,7 @@
             android:hint="Activity Name" />
     <EditText
             android:id="@+id/secretCode"
-            android:inputType="text|textNoSuggestions"
+            android:inputType="phone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
