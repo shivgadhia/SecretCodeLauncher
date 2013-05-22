@@ -3,6 +3,8 @@ package com.shivgadhia.android.SecretCodeLauncher.activities;
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,6 +22,8 @@ import com.shivgadhia.android.SecretCodeLauncher.persistance.SecretCodesReader;
 import com.shivgadhia.android.SecretCodeLauncher.persistance.SecretCodesWriter;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class SavedCodesActivity extends Activity
 {
